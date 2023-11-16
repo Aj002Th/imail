@@ -1,20 +1,30 @@
 package email
 
-import "gopkg.in/gomail.v2"
+import (
+	"github.com/Aj002Th/imail/common/config"
+	"gopkg.in/gomail.v2"
+)
 
-func test() {
-	m := gomail.NewMessage()
-	m.SetHeader("From", "2581407059@qq.com")
-	m.SetHeader("To", "bob@example.com", "2581407059@qq.com")
-	m.SetAddressHeader("Cc", "dan@example.com", "Dan")
-	m.SetHeader("Subject", "Hello!")
-	m.SetBody("text/html", "Hello <b>Bob</b> and <i>Cora</i>!")
-	//m.Attach("/home/Alex/lolcat.jpg")
+type Gomail struct {
+	dialer *gomail.Dialer
+}
 
-	d := gomail.NewDialer("smtp.example.com", 587, "user", "123456")
-
-	// Send the email to Bob, Cora and Dan.
-	if err := d.DialAndSend(m); err != nil {
-		panic(err)
+func NewGomail() *Gomail {
+	sender := config.GetEmailSenderForMessager()
+	return &Gomail{
+		dialer: gomail.NewDialer(sender.Host, sender.Port, sender.Username, sender.Password),
 	}
+}
+
+func (g *Gomail) SendEmail(subject, body string) error {
+	sender := config.GetEmailSenderForMessager()
+	receiver := config.GetEmailReceiverForMessager()
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", sender.Nickname+"<"+sender.Username+">")
+	m.SetHeader("To", receiver...)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", body)
+
+	return g.dialer.DialAndSend(m)
 }
