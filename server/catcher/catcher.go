@@ -1,6 +1,6 @@
 package catcher
 
-// Catcher 抓取、比对和存储
+// Catcher 负责抓取
 type Catcher interface {
 	Catch() ([]Content, error)
 }

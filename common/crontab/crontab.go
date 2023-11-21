@@ -4,8 +4,12 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-func StartScheduledTasks(crontab string, cmd func()) {
+func StartScheduledTasks(crontab string, cmd func()) error {
 	c := cron.New()
-	c.AddFunc(crontab, cmd)
+	_, err := c.AddFunc(crontab, cmd)
+	if err != nil {
+		return err
+	}
 	c.Start()
+	return nil
 }

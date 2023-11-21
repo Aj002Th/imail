@@ -11,9 +11,13 @@ type BilibiliVideoConfig struct {
 	Category string `yaml:"category"`
 }
 
+func GetBilibiliVideoSource() string {
+	return viper.GetString("catcher.bilibiliVideo.source")
+}
+
 func GetBilibiliVideoConfigs() []BilibiliVideoConfig {
 	results := make([]BilibiliVideoConfig, 0)
-	cfgs := viper.Get("catcher.bilibiliVideo").([]interface{})
+	cfgs := viper.Get("catcher.bilibiliVideo.target").([]interface{})
 	for _, c := range cfgs {
 		results = append(results, BilibiliVideoConfig{
 			Uid:      c.(map[string]interface{})["uid"].(string),

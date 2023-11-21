@@ -1,7 +1,5 @@
 package catcher
 
-// 整理和组装内容
-
 type Content struct {
 	// 标题
 	Title string `json:"title" gorm:"index:idx,unique"`

@@ -7,6 +7,7 @@ import (
 	"github.com/Aj002Th/imail/server/manager/dal/model"
 	"github.com/Aj002Th/imail/server/manager/dal/query"
 	"github.com/Aj002Th/imail/server/messager"
+	"log/slog"
 )
 
 type Manager struct {
@@ -47,7 +48,7 @@ func (m *Manager) run() {
 	for _, c := range m.Catchers {
 		contentBatch, err := c.Catch()
 		if err != nil {
-			// todo
+			slog.Error(err.Error())
 			continue
 		}
 		contents = append(contents, contentBatch...)
@@ -72,11 +73,20 @@ func (m *Manager) run() {
 	// 将所有未发送的数据进行发送
 	contentToSend, err := query.Content.Where(query.Content.Sended.Is(false)).Find()
 	if err != nil {
+		slog.Error(err.Error())
 		return
 	}
 	for _, m := range m.Messagers {
 		// todo: 格式整理
-		m.Push("每日订阅消息", convContentsToMessage(convContentModelsToContents(contentToSend)))
+		err := m.Push("每日订阅消息", convContentsToMessage(convContentModelsToContents(contentToSend)))
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
 	}
-	query.Content.Where(query.Content.Sended.Is(false)).Update(query.Content.Sended, true)
+	_, err = query.Content.Where(query.Content.Sended.Is(false)).Update(query.Content.Sended, true)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
 }

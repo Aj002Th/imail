@@ -2,6 +2,7 @@ package bilibiliVideo
 
 import (
 	"fmt"
+	"github.com/Aj002Th/imail/common/config"
 	"github.com/Aj002Th/imail/server/catcher"
 	"log/slog"
 	"strconv"
@@ -27,10 +28,9 @@ type Catcher struct {
 func NewCatcher(uid string, category string) *Catcher {
 	url := fmt.Sprintf("https://space.bilibili.com/%s/video?tid=0&page=1&keyword=&order=pubdate", uid)
 
+	// 通过 uid 爬取 username
 	browser := rod.New().Timeout(time.Minute).MustConnect()
 	defer browser.MustClose()
-
-	// 通过 uid 爬取 username
 	page := stealth.MustPage(browser)
 	page.MustNavigate(url)
 	time.Sleep(time.Second * 2)
@@ -47,6 +47,7 @@ func NewCatcher(uid string, category string) *Catcher {
 func (c *Catcher) Catch() ([]catcher.Content, error) {
 	targets, err := c.getData()
 	if err != nil {
+		slog.Error(err.Error())
 		return nil, err
 	}
 
@@ -59,7 +60,7 @@ func (c *Catcher) Catch() ([]catcher.Content, error) {
 	return contents, nil
 }
 
-// 插件要爬取的目标信息
+// Target 插件要爬取的目标信息
 type Target struct {
 	Title string
 	Cover string
@@ -76,7 +77,8 @@ func (c *Catcher) getData() ([]Target, error) {
 	vList := page.MustElement("#submit-video-list > ul.list-list")
 	videos, err := vList.Elements("li")
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		return nil, err
 	}
 
 	targets := make([]Target, 0)
@@ -118,11 +120,11 @@ func (c *Catcher) getData() ([]Target, error) {
 
 func (c *Catcher) convTargetToContent(t Target) catcher.Content {
 	slog.Info(fmt.Sprintf(
-		"[title]%s\n[url]%s\n[cover]%s\n[time]%s\n\n",
+		"bilibiliVideoCatcher: getVideo - [title]%s [url]%s [cover]%s [time]%s",
 		t.Title,
 		t.Url,
 		t.Cover,
-		t.Time.Format("2006-01-02 15:04:05")))
+		t.Time.Format("2006-01-02")))
 
 	return catcher.Content{
 		Title:       t.Title,
@@ -130,7 +132,7 @@ func (c *Catcher) convTargetToContent(t Target) catcher.Content {
 		Cover:       t.Cover,
 		Link:        t.Url,
 		Author:      c.Uname,
-		Source:      "bilibili",
+		Source:      config.GetBilibiliVideoSource(),
 		Category:    c.Category,
 	}
 }

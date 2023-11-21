@@ -5,12 +5,15 @@ go 1.21.3
 require (
 	github.com/go-rod/rod v0.114.5
 	github.com/go-rod/stealth v0.4.9
+	github.com/orandin/slog-gorm v1.0.1
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/driver/sqlite v1.5.4
 	gorm.io/gen v0.3.23
 	gorm.io/gorm v1.25.5
+	gorm.io/plugin/dbresolver v1.3.0
 )
 
 require (
@@ -24,7 +27,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
-	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -50,5 +52,4 @@ require (
 	gorm.io/datatypes v1.1.1-0.20230130040222-c43177d3cf8c // indirect
 	gorm.io/driver/mysql v1.5.1-0.20230509030346-3715c134c25b // indirect
 	gorm.io/hints v1.1.0 // indirect
-	gorm.io/plugin/dbresolver v1.3.0 // indirect
 )

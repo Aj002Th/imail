@@ -5,13 +5,15 @@ import (
 	"os"
 )
 
+var Logger *slog.Logger
+
 // Init 日志初始化
 func Init() {
 	opts := slog.HandlerOptions{
 		AddSource: true,
 	}
 	handler := slog.NewJSONHandler(os.Stdout, &opts)
-	logger := slog.New(handler)
+	Logger = slog.New(handler)
 
-	slog.SetDefault(logger)
+	slog.SetDefault(Logger)
 }
