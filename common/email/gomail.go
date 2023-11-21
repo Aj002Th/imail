@@ -18,7 +18,7 @@ func NewGomail() *Gomail {
 
 func (g *Gomail) SendEmail(subject, body string) error {
 	sender := config.GetEmailSenderForMessager()
-	receiver := config.GetEmailReceiverForMessager()
+	receiver := config.GetEmailReceiversForMessager()
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", sender.Nickname+"<"+sender.Username+">")

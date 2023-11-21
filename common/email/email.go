@@ -10,6 +10,10 @@ func Init() {
 	EmailSenderImpl = NewGomail()
 }
 
+func NewEmailSender() EmailSender {
+	return NewGomail()
+}
+
 func SendEmail(subject, body string) error {
 	return EmailSenderImpl.SendEmail(subject, body)
 }

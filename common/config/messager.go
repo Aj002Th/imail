@@ -20,6 +20,6 @@ func GetEmailSenderForMessager() EmailSender {
 	}
 }
 
-func GetEmailReceiverForMessager() []string {
+func GetEmailReceiversForMessager() []string {
 	return viper.GetStringSlice("messager.email.receiver.users")
 }
