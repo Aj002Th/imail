@@ -29,7 +29,8 @@ func NewCatcher(uid string, category string) *Catcher {
 	url := fmt.Sprintf("https://space.bilibili.com/%s/video?tid=0&page=1&keyword=&order=pubdate", uid)
 
 	// 通过 uid 爬取 username
-	browser := rod.New().Timeout(time.Minute).MustConnect()
+	launcherUrl := launcher.New().NoSandbox(true).MustLaunch()
+	browser := rod.New().Timeout(time.Minute).ControlURL(launcherUrl).MustConnect()
 	defer browser.MustClose()
 	page := stealth.MustPage(browser)
 	page.MustNavigate(url)
@@ -69,7 +70,8 @@ type Target struct {
 }
 
 func (c *Catcher) getData() ([]Target, error) {
-	browser := rod.New().Timeout(time.Minute).MustConnect()
+	launcherUrl := launcher.New().NoSandbox(true).MustLaunch()
+	browser := rod.New().Timeout(time.Minute).ControlURL(launcherUrl).MustConnect()
 	defer browser.MustClose()
 	page := stealth.MustPage(browser)
 	page.MustNavigate(c.Url)
