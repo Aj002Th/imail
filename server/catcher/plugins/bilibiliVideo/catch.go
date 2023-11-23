@@ -69,7 +69,8 @@ type Target struct {
 }
 
 func (c *Catcher) getData() ([]Target, error) {
-	browser := rod.New().Timeout(time.Minute).MustConnect()
+	url := launcher.New().NoSandbox(true).MustLaunch()
+	browser := rod.New().Timeout(time.Minute).ControlURL(url).MustConnect()
 	defer browser.MustClose()
 	page := stealth.MustPage(browser)
 	page.MustNavigate(c.Url)
