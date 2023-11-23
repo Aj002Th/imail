@@ -1,0 +1,28 @@
+global:
+  env: "debug"  # debug | release 运行模式
+
+catcher:
+  # 各类爬虫的配置
+  bilibiliVideo:  #[bilibili视频更新爬取]的相关配置
+    source: "bilibili" #来源名称
+    target:
+      - uid: "uid001"  #up主的uid
+        category: "开发"  #信息分类
+      - uid: "uid002"
+        category: "经济学"
+
+manager:
+  crontab: "0 19 * * *"  #cron表达式, 控制爬虫爬取和消息推送的频率
+  immediate: true  #是否在项目启动时立马执行一次爬虫和消息推送
+
+messager:
+  email:
+    sender:
+      nickname: imailHelper  #发件人昵称
+      host: smtp.qq.com  #smtp服务器地址
+      port: 587  #smtp服务器端口
+      username: xxxx@xxx.com  #smtp登录账号
+      password: password  #smtp登录密码
+    receiver:
+      users:  #收件人邮箱地址
+        - xxxx@xxx.com
