@@ -200,7 +200,7 @@ type IContentDo interface {
 	FindBySourceAuthorLink(source string, author string, link string) (result model.Content, err error)
 }
 
-// SELECT * FROM @@table WHERE source = @source and author = @author and link = @link
+// SELECT * FROM @@table WHERE source = @source and author = @author and link = @link and deleted_at is null
 func (c contentDo) FindBySourceAuthorLink(source string, author string, link string) (result model.Content, err error) {
 	var params []interface{}
 
@@ -208,7 +208,7 @@ func (c contentDo) FindBySourceAuthorLink(source string, author string, link str
 	params = append(params, source)
 	params = append(params, author)
 	params = append(params, link)
-	generateSQL.WriteString("SELECT * FROM contents WHERE source = ? and author = ? and link = ? ")
+	generateSQL.WriteString("SELECT * FROM contents WHERE source = ? and author = ? and link = ? and deleted_at is null ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
