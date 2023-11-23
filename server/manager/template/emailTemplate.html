@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>imail订阅提醒</title>
+
+    <style>
+        body,html,div,ul,li,button,p,img,h1,h2,h3,h4,h5,h6 {
+            margin: 0;
+            padding: 0;
+        }
+
+        body,html {
+            background: #fff;
+            line-height: 1.8;
+        }
+
+        h1,h2,h3,h4,h5,h6 {
+            line-height: 1.8;
+        }
+
+        .email_warp {
+            height: 100vh;
+            min-height: 500px;
+            font-size: 14px;
+            color: #212121;
+            display: flex;
+            /* align-items: center; */
+            justify-content: center;
+        }
+
+        .logo {
+            margin: 3em auto;
+            width: 200px;
+            height: 60px;
+        }
+
+        h1.email-title {
+            font-size: 26px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #252525;
+        }
+
+        a.links_btn {
+            border: 0;
+            background: #4C84FF;
+            color: #fff;
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            font-size: 16px;
+            margin: 40px auto;
+            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+        }
+
+        .warm_tips {
+            color: #757575;
+            background: #f7f7f7;
+            padding: 20px;
+        }
+
+        .warm_tips .desc {
+            margin-bottom: 20px;
+        }
+
+        .qr_warp {
+            max-width: 140px;
+            margin: 20px auto;
+        }
+
+        .qr_warp img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .email-footer {
+            margin-top: 2em;
+        }
+
+        #reset-password-email {
+            max-width: 500px;
+        }
+        #reset-password-email .accout_email {
+            color: #4C84FF;
+            display: block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>{{- /*gotype: manager.TemplateData*/ -}}
+<section class="email_warp">
+    <div id="reset-password-email">
+{{/*        <div class="logo">*/}}
+{{/*            <img src="https://imailpro.com.br/imail.jpg" alt="logo">*/}}
+{{/*        </div>*/}}
+
+        <h1 class="email-title">
+            {{.Title}}
+        </h1>
+        <p>今日订阅消息共 {{.Total}} 条，请查收</p>
+        <hr />
+
+        {{range $category, $contents := .Contents}}
+            <h2>{{$category}}</h2>
+            {{range $pos, $content := $contents}}
+                <div class="warm_tips">
+                    <p>title: {{$content.Title}}</p>
+                    <p>publish time: {{$content.Time}}</p>
+                    <p>description: {{$content.Description}}</p>
+                    <p>link: {{$content.Link}}</p>
+                    <p>author: {{$content.Author}}</p>
+                    <p>source: {{$content.Category}}</p>
+                    <div class="qr_warp">
+                        <img src="{{$content.Cover}}" alt="cover">
+                    </div>
+                </div>
+            {{end}}
+            <br />
+        {{end}}
+
+        <div class="email-footer">
+            <p>您的imail订阅助理</p>
+            <p>{{.Now}}</p>
+        </div>
+    </div>
+</section>
+</body>
+
+</html>
+

@@ -1,3 +1,6 @@
 package catcher
 
-// 抓取和比对
+// Catcher 负责抓取
+type Catcher interface {
+	Catch() ([]Content, error)
+}
