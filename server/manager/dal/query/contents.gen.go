@@ -33,6 +33,7 @@ func newContent(db *gorm.DB, opts ...gen.DOOption) content {
 	_content.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_content.DeletedAt = field.NewField(tableName, "deleted_at")
 	_content.Title = field.NewString(tableName, "title")
+	_content.Time = field.NewTime(tableName, "time")
 	_content.Description = field.NewString(tableName, "description")
 	_content.Cover = field.NewString(tableName, "cover")
 	_content.Link = field.NewString(tableName, "link")
@@ -55,6 +56,7 @@ type content struct {
 	UpdatedAt   field.Time
 	DeletedAt   field.Field
 	Title       field.String
+	Time        field.Time
 	Description field.String
 	Cover       field.String
 	Link        field.String
@@ -83,6 +85,7 @@ func (c *content) updateTableName(table string) *content {
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
 	c.Title = field.NewString(table, "title")
+	c.Time = field.NewTime(table, "time")
 	c.Description = field.NewString(table, "description")
 	c.Cover = field.NewString(table, "cover")
 	c.Link = field.NewString(table, "link")
@@ -106,12 +109,13 @@ func (c *content) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *content) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 12)
+	c.fieldMap = make(map[string]field.Expr, 13)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["deleted_at"] = c.DeletedAt
 	c.fieldMap["title"] = c.Title
+	c.fieldMap["time"] = c.Time
 	c.fieldMap["description"] = c.Description
 	c.fieldMap["cover"] = c.Cover
 	c.fieldMap["link"] = c.Link
@@ -193,11 +197,11 @@ type IContentDo interface {
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 
-	FilterWithSourceAuthorLink(source string, author string, link string) (result []model.Content, err error)
+	FindBySourceAuthorLink(source string, author string, link string) (result model.Content, err error)
 }
 
 // SELECT * FROM @@table WHERE source = @source and author = @author and link = @link
-func (c contentDo) FilterWithSourceAuthorLink(source string, author string, link string) (result []model.Content, err error) {
+func (c contentDo) FindBySourceAuthorLink(source string, author string, link string) (result model.Content, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
@@ -207,7 +211,7 @@ func (c contentDo) FilterWithSourceAuthorLink(source string, author string, link
 	generateSQL.WriteString("SELECT * FROM contents WHERE source = ? and author = ? and link = ? ")
 
 	var executeSQL *gorm.DB
-	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert
+	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
 	err = executeSQL.Error
 
 	return

@@ -1,22 +1,27 @@
 package manager
 
 import (
+	"errors"
 	"github.com/Aj002Th/imail/common/config"
+	"github.com/Aj002Th/imail/common/crontab"
 	"github.com/Aj002Th/imail/server/catcher"
 	"github.com/Aj002Th/imail/server/catcher/plugins/bilibiliVideo"
 	"github.com/Aj002Th/imail/server/manager/dal/model"
 	"github.com/Aj002Th/imail/server/manager/dal/query"
 	"github.com/Aj002Th/imail/server/messager"
+	"gorm.io/gorm"
 	"log/slog"
+	"time"
 )
 
 type Manager struct {
+	firstRun  bool // 标记是否是第一次运行, 用于优化体验
 	Catchers  []catcher.Catcher
 	Messagers []messager.Messager
 }
 
 func NewContentManager() *Manager {
-	manager := &Manager{}
+	manager := &Manager{firstRun: true}
 
 	// catcher init
 	bilibiliVideoConfigs := config.GetBilibiliVideoConfigs()
@@ -37,11 +42,21 @@ func NewContentManager() *Manager {
 }
 
 func (m *Manager) Run() {
-	//crontab.StartScheduledTasks(config.GetCronTab(), func() {m.run()})
-	m.run()
+	err := crontab.StartScheduledTasks(config.GetCronTab(), func() { m.CatchAndSend() })
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+
+	// 是否立即执行一次
+	if config.IsImmediate() {
+		m.CatchAndSend()
+	}
+
+	select {}
 }
 
-func (m *Manager) run() {
+func (m *Manager) CatchAndSend() {
 	contents := make([]catcher.Content, 0)
 
 	// 获取所有爬虫爬取到的数据
@@ -54,17 +69,29 @@ func (m *Manager) run() {
 		contents = append(contents, contentBatch...)
 	}
 
-	// 插入数据库, 通过一个唯一索引来进行了去重
+	// 插入数据库, 需要依据历史数据做一个去重操作
 	for _, c := range contents {
+		_, err := query.Content.FindBySourceAuthorLink(c.Source, c.Author, c.Link)
+		// 找到了
+		if err == nil {
+			continue
+		}
+		// 出错
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Error(err.Error())
+			continue
+		}
+		// 未找到
 		_ = query.Content.Create(&model.Content{
 			Content: catcher.Content{
+				Title:       c.Title,
+				Time:        c.Time,
 				Description: c.Description,
 				Cover:       c.Cover,
 				Link:        c.Link,
 				Author:      c.Author,
 				Source:      c.Source,
 				Category:    c.Category,
-				Title:       c.Title,
 			},
 			Sended: false,
 		})
@@ -76,14 +103,27 @@ func (m *Manager) run() {
 		slog.Error(err.Error())
 		return
 	}
+	// 简单优化一下体验, 第一次启动时不会发送出巨量的历史内容
+	// 第一次运行时, 最多只把 10 天以内的消息发送出去, 不全发
+	if m.firstRun {
+		m.firstRun = false
+		newContentToSend := make([]*model.Content, 0)
+		for _, c := range contentToSend {
+			if c.Time.After(time.Now().AddDate(0, 0, -10)) {
+				newContentToSend = append(newContentToSend, c)
+			}
+		}
+		contentToSend = newContentToSend
+	}
 	for _, m := range m.Messagers {
-		// todo: 格式整理
 		err := m.Push("每日订阅消息", convContentsToMessage(convContentModelsToContents(contentToSend)))
 		if err != nil {
 			slog.Error(err.Error())
 			return
 		}
 	}
+
+	// 全部标记为已发送
 	_, err = query.Content.Where(query.Content.Sended.Is(false)).Update(query.Content.Sended, true)
 	if err != nil {
 		slog.Error(err.Error())

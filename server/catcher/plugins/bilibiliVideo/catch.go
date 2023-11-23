@@ -89,6 +89,8 @@ func (c *Catcher) getData() ([]Target, error) {
 		timeStr := v.MustElement("div > div.meta.clearfix > span.time").MustText()
 		timeStr = strings.TrimSuffix(timeStr, "\\n")
 		timeStr = strings.TrimSpace(timeStr)
+
+		// 时间格式解析
 		var publishTime time.Time
 		if strings.Contains(timeStr, "小时前") {
 			afterHoursStr := strings.TrimSuffix(timeStr, "小时前")
@@ -119,15 +121,16 @@ func (c *Catcher) getData() ([]Target, error) {
 }
 
 func (c *Catcher) convTargetToContent(t Target) catcher.Content {
-	slog.Info(fmt.Sprintf(
-		"bilibiliVideoCatcher: getVideo - [title]%s [url]%s [cover]%s [time]%s",
-		t.Title,
-		t.Url,
-		t.Cover,
-		t.Time.Format("2006-01-02")))
+	//slog.Info(fmt.Sprintf(
+	//	"bilibiliVideoCatcher: getVideo - [title]%s [url]%s [cover]%s [time]%s",
+	//	t.Title,
+	//	t.Url,
+	//	t.Cover,
+	//	t.Time.Format("2006-01-02")))
 
 	return catcher.Content{
 		Title:       t.Title,
+		Time:        t.Time,
 		Description: "",
 		Cover:       t.Cover,
 		Link:        t.Url,

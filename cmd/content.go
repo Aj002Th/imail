@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/Aj002Th/imail/common/config"
 	"github.com/Aj002Th/imail/common/logs"
+	"github.com/Aj002Th/imail/server/manager"
 	"github.com/Aj002Th/imail/server/manager/dal"
 	"github.com/Aj002Th/imail/server/manager/dal/model"
 	"github.com/spf13/cobra"
@@ -21,7 +21,6 @@ var contentCmd = &cobra.Command{
 }
 
 func contentHandle(cmd *cobra.Command, args []string) {
-	fmt.Println("imail content db")
 	if len(args) == 0 {
 		slog.Error("args is empty")
 		return
@@ -31,22 +30,30 @@ func contentHandle(cmd *cobra.Command, args []string) {
 		slog.Error("function not found")
 		return
 	}
-	function()
-}
 
-var cmdMap = map[string]func(){
-	"clear": clearCmd,
-}
-
-func clearCmd() {
-	fmt.Println("imail content clearCmd")
 	config.Init(ConfigPath)
 	logs.Init()
 	dal.Init()
+	function(args[1:])
+}
+
+var cmdMap = map[string]func([]string){
+	"clear": clearCmd,
+	"send":  sendCmd,
+}
+
+func clearCmd(args []string) {
+	slog.Info("run cmd: imail content clearCmd")
 	db := dal.GetDB()
 	err := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Content{}).Error
 	if err != nil {
 		slog.Error(err.Error())
 		panic(err)
 	}
+}
+
+func sendCmd(args []string) {
+	slog.Info("run cmd: imail content sendCmd")
+	contentManager := manager.NewContentManager()
+	contentManager.CatchAndSend()
 }
