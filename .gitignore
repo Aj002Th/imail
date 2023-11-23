@@ -1,12 +1,18 @@
+# 编辑器
 .idea/
 .vscode/
 
+# 配置文件
 /imail.yaml
 
+# 可执行文件
 *.exe
+imail
 
+# 本地数据
 /data/logs/*
 /data/sqlite/*
 
+# 保持目录结构
 !.gitkeep
 
