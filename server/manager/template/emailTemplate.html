@@ -117,14 +117,18 @@
             {{range $pos, $content := $contents}}
                 <div class="warm_tips">
                     <p>title: {{$content.Title}}</p>
-                    <p>publish time: {{$content.Time}}</p>
-                    <p>description: {{$content.Description}}</p>
+                    <p>publish time: {{$content.Time.Format "2006-01-02"}}</p>
+                    {{if ne $content.Description ""}}
+                        <p>description: {{$content.Description}}</p>
+                    {{end}}
                     <p>link: {{$content.Link}}</p>
                     <p>author: {{$content.Author}}</p>
-                    <p>source: {{$content.Category}}</p>
-                    <div class="qr_warp">
-                        <img src="{{$content.Cover}}" alt="cover">
-                    </div>
+                    <p>category: {{$content.Category}}</p>
+                    {{if ne $content.Cover ""}}
+                        <div class="qr_warp">
+                            <img src="{{$content.Cover}}" alt="cover">
+                        </div>
+                    {{end}}
                 </div>
             {{end}}
             <br />
