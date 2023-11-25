@@ -17,6 +17,6 @@ type Content struct {
 	Author string `json:"author"  gorm:"index:idx"`
 	// 来源
 	Source string `json:"source"  gorm:"index:idx"`
-	// 分类(可选)
+	// 分类(可选,默认归类为"未分类")
 	Category string `json:"category"`
 }

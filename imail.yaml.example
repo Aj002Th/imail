@@ -14,6 +14,7 @@ catcher:
 manager:
   crontab: "0 19 * * *"  #cron表达式, 控制爬虫爬取和消息推送的频率
   immediate: true  #是否在项目启动时立马执行一次爬虫和消息推送
+  ignoreEmptyMessage: true  #当没有新消息时是否忽略空消息的推送
 
 messager:
   email:

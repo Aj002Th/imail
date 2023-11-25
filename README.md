@@ -18,6 +18,7 @@ iMail是一个基于go实现的信息获取和推送工具，支持邮件推送�
 
 ## 项目依赖
 - go 1.21+
+  1. 参考官方文档 https://golang.google.cn/doc/install
 - 无头浏览器
   1. 项目使用 go-rod 库操作无头浏览器实现爬虫, 在绝大多数操作系统下, 项目首次启动时能自动下载和安装合适版本的无头浏览器, 在某些平台上，您可能需要手动安装浏览器，Rod 无法保证自动下载的浏览器始终有效
   2. 若自动下载失败, 可参考 https://go-rod.github.io/#/compatibility?id=compatibility 进行手动下载安装

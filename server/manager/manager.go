@@ -103,6 +103,7 @@ func (m *Manager) CatchAndSend() {
 		slog.Error(err.Error())
 		return
 	}
+
 	// 简单优化一下体验, 第一次启动时不会发送出巨量的历史内容
 	// 第一次运行时, 最多只把 10 天以内的消息发送出去, 不全发
 	if m.firstRun {
@@ -115,8 +116,15 @@ func (m *Manager) CatchAndSend() {
 		}
 		contentToSend = newContentToSend
 	}
+
+	// 依据配置, 判断是否忽略空消息
+	if len(contentToSend) == 0 && config.IsIgnoreEmptyMessage() {
+		return
+	}
+
+	// 推送消息
 	for _, m := range m.Messagers {
-		err := m.Push("每日订阅消息", convContentsToMessage(convContentModelsToContents(contentToSend)))
+		err := m.Push("订阅消息", convContentsToMessage(convContentModelsToContents(contentToSend)))
 		if err != nil {
 			slog.Error(err.Error())
 			return
