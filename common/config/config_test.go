@@ -7,6 +7,6 @@ import (
 
 func TestConfig(t *testing.T) {
 	Init("../../imail.yaml")
-	list := GetBilibiliVideoConfigs()
+	list := GetBilibiliVideoTargets()
 	fmt.Println(list)
 }

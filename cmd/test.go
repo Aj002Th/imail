@@ -16,6 +16,10 @@ import (
 	"time"
 )
 
+//
+// 用于调试
+//
+
 func init() {
 	rootCmd.AddCommand(testCmd)
 }

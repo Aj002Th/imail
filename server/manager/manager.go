@@ -6,6 +6,7 @@ import (
 	"github.com/Aj002Th/imail/common/crontab"
 	"github.com/Aj002Th/imail/server/catcher"
 	"github.com/Aj002Th/imail/server/catcher/plugins/bilibiliVideo"
+	"github.com/Aj002Th/imail/server/catcher/plugins/rssAdapter"
 	"github.com/Aj002Th/imail/server/manager/dal/model"
 	"github.com/Aj002Th/imail/server/manager/dal/query"
 	"github.com/Aj002Th/imail/server/messager"
@@ -24,13 +25,24 @@ func NewContentManager() *Manager {
 	manager := &Manager{firstRun: true}
 
 	// catcher init
-	bilibiliVideoConfigs := config.GetBilibiliVideoConfigs()
+	bilibiliVideoConfigs := config.GetBilibiliVideoTargets()
 	if len(bilibiliVideoConfigs) != 0 {
 		for _, cfg := range bilibiliVideoConfigs {
 			manager.Catchers = append(manager.Catchers,
 				bilibiliVideo.NewCatcher(
 					cfg.Uid,
 					cfg.Category,
+				))
+		}
+	}
+	rssAdapterConfigs := config.GetRssAdapterTargets()
+	if len(rssAdapterConfigs) != 0 {
+		for _, cfg := range rssAdapterConfigs {
+			manager.Catchers = append(manager.Catchers,
+				rssAdapter.NewCatcher(
+					cfg.Url,
+					cfg.Category,
+					cfg.Source,
 				))
 		}
 	}
