@@ -13,3 +13,7 @@ func IsImmediate() bool {
 func IsIgnoreEmptyMessage() bool {
 	return viper.GetBool("manager.ignoreEmptyMessage")
 }
+
+func GetDescriptionLengthLimit() int {
+	return viper.GetInt("manager.descriptionLengthLimit")
+}

@@ -2,6 +2,8 @@ package manager
 
 import (
 	"bytes"
+	"github.com/Aj002Th/imail/common/config"
+	"github.com/Aj002Th/imail/common/text"
 	"github.com/Aj002Th/imail/server/catcher"
 	"github.com/Aj002Th/imail/server/manager/dal/model"
 	"html/template"
@@ -21,7 +23,7 @@ func convContentModelToContent(c *model.Content) *catcher.Content {
 	return &catcher.Content{
 		Title:       c.Title,
 		Time:        c.Time,
-		Description: c.Description,
+		Description: text.LengthLimit(c.Description, config.GetDescriptionLengthLimit()),
 		Cover:       c.Cover,
 		Link:        c.Link,
 		Author:      c.Author,

@@ -2,6 +2,7 @@ package rssAdapter
 
 import (
 	"fmt"
+	"github.com/Aj002Th/imail/common/text"
 	"github.com/Aj002Th/imail/server/catcher"
 	"github.com/mmcdole/gofeed"
 	"time"
@@ -47,7 +48,7 @@ func (c *Catcher) Catch() ([]catcher.Content, error) {
 		result = append(result, catcher.Content{
 			Title:       item.Title,
 			Time:        publishedTime,
-			Description: item.Description,
+			Description: text.TrimHtml(item.Description),
 			Cover:       "",
 			Link:        item.Link,
 			Author:      authorName,
