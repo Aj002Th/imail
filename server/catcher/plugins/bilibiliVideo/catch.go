@@ -14,6 +14,15 @@ import (
 	"github.com/go-rod/stealth"
 )
 
+/*
+## bilibiliVideo
+获取 up 主的视频更新情况
+
+## 注意事项
+只爬取了视频列表第一页(包含最多30个视频), 如果一个爬取间隔内更新超过30个视频, 则会有更新信息被遗漏
+通常情况下也不会有这么勤奋的up主吧 :)
+*/
+
 func init() {
 	launcher.NewBrowser().MustGet()
 }
