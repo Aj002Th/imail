@@ -17,7 +17,10 @@ func GetBilibiliVideoSource() string {
 
 func GetBilibiliVideoTargets() []BilibiliVideoTarget {
 	results := make([]BilibiliVideoTarget, 0)
-	cfgs := viper.Get("catcher.bilibiliVideo.target").([]interface{})
+	cfgs, ok := viper.Get("catcher.bilibiliVideo.target").([]interface{})
+	if !ok {
+		return results
+	}
 	for _, c := range cfgs {
 		results = append(results, BilibiliVideoTarget{
 			Uid:      c.(map[string]interface{})["uid"].(string),
@@ -39,7 +42,10 @@ type RssAdapterTarget struct {
 
 func GetRssAdapterTargets() []RssAdapterTarget {
 	results := make([]RssAdapterTarget, 0)
-	cfgs := viper.Get("catcher.rssAdapter.target").([]interface{})
+	cfgs, ok := viper.Get("catcher.rssAdapter.target").([]interface{})
+	if !ok {
+		return results
+	}
 	for _, c := range cfgs {
 		results = append(results, RssAdapterTarget{
 			Url:      c.(map[string]interface{})["url"].(string),
