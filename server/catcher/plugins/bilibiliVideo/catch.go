@@ -55,30 +55,15 @@ func NewCatcher(uid string, category string) *Catcher {
 }
 
 func (c *Catcher) Catch() ([]catcher.Content, error) {
-	targets, err := c.getData()
+	contents, err := c.getData()
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
 	}
-
-	// 格式转换
-	contents := make([]catcher.Content, 0)
-	for _, target := range targets {
-		contents = append(contents, c.convTargetToContent(target))
-	}
-
 	return contents, nil
 }
 
-// Target 插件要爬取的目标信息
-type Target struct {
-	Title string
-	Cover string
-	Time  time.Time
-	Url   string
-}
-
-func (c *Catcher) getData() ([]Target, error) {
+func (c *Catcher) getData() ([]catcher.Content, error) {
 	launcherUrl := launcher.New().NoSandbox(true).MustLaunch()
 	browser := rod.New().Timeout(time.Minute).ControlURL(launcherUrl).MustConnect()
 	defer browser.MustClose()
@@ -92,7 +77,7 @@ func (c *Catcher) getData() ([]Target, error) {
 		return nil, err
 	}
 
-	targets := make([]Target, 0)
+	contents := make([]catcher.Content, 0)
 	for _, v := range videos {
 		title := v.MustElement("div > div.title-row > a").MustAttribute("title")
 		url := v.MustElement("div > div.title-row > a").MustAttribute("href")
@@ -102,51 +87,48 @@ func (c *Catcher) getData() ([]Target, error) {
 		timeStr = strings.TrimSpace(timeStr)
 
 		// 时间格式解析
-		var publishTime time.Time
-		if strings.Contains(timeStr, "小时前") {
-			afterHoursStr := strings.TrimSuffix(timeStr, "小时前")
-			afterHours, _ := strconv.Atoi(afterHoursStr)
-			timeNow := time.Now().Add(time.Hour * time.Duration(-afterHours))
-			publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
-		} else if timeStr == "昨天" {
-			timeNow := time.Now()
-			publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
-		} else {
-			strs := strings.Split(timeStr, "-")
-			mouth, _ := strconv.Atoi(strs[0])
-			day, _ := strconv.Atoi(strs[1])
-			publishTime = time.Date(time.Now().Year(), time.Month(mouth), day, 0, 0, 0, 0, time.Local)
-		}
+		publishTime := c.parseDate(timeStr)
 
-		t := Target{
-			Title: *title,
-			Cover: "https:" + *cover,
-			Url:   "https:" + *url,
-			Time:  publishTime,
+		content := catcher.Content{
+			Title:       *title,
+			Time:        publishTime,
+			Description: "",
+			Cover:       "https:" + *cover,
+			Link:        "https:" + *url,
+			Author:      c.Uname,
+			Source:      config.GetBilibiliVideoSource(),
+			Category:    c.Category,
 		}
-
-		targets = append(targets, t)
+		contents = append(contents, content)
 	}
 
-	return targets, nil
+	return contents, nil
 }
 
-func (c *Catcher) convTargetToContent(t Target) catcher.Content {
-	//slog.Info(fmt.Sprintf(
-	//	"bilibiliVideoCatcher: getVideo - [title]%s [url]%s [cover]%s [time]%s",
-	//	t.Title,
-	//	t.Url,
-	//	t.Cover,
-	//	t.Time.Format("2006-01-02")))
-
-	return catcher.Content{
-		Title:       t.Title,
-		Time:        t.Time,
-		Description: "",
-		Cover:       t.Cover,
-		Link:        t.Url,
-		Author:      c.Uname,
-		Source:      config.GetBilibiliVideoSource(),
-		Category:    c.Category,
+func (c *Catcher) parseDate(timeStr string) time.Time {
+	var publishTime time.Time
+	if strings.Contains(timeStr, "小时前") {
+		afterHoursStr := strings.TrimSuffix(timeStr, "小时前")
+		afterHours, _ := strconv.Atoi(afterHoursStr)
+		timeNow := time.Now().Add(time.Hour * time.Duration(-afterHours))
+		publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
+	} else if timeStr == "昨天" {
+		timeNow := time.Now()
+		publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
+	} else {
+		strs := strings.Split(timeStr, "-")
+		year := time.Now().Year()
+		mouth := int(time.Now().Month())
+		day := time.Now().Day()
+		if len(strs) == 3 { // 往年日期, 例如 "2022-12-31"
+			year, _ = strconv.Atoi(strs[0])
+			mouth, _ = strconv.Atoi(strs[1])
+			day, _ = strconv.Atoi(strs[2])
+		} else { // 今年日期, 例如 "12-31"
+			mouth, _ = strconv.Atoi(strs[0])
+			day, _ = strconv.Atoi(strs[1])
+		}
+		publishTime = time.Date(year, time.Month(mouth), day, 0, 0, 0, 0, time.Local)
 	}
+	return publishTime
 }
