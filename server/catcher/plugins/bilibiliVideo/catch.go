@@ -107,28 +107,38 @@ func (c *Catcher) getData() ([]catcher.Content, error) {
 
 func (c *Catcher) parseDate(timeStr string) time.Time {
 	var publishTime time.Time
-	if strings.Contains(timeStr, "小时前") {
+	switch {
+	case strings.Contains(timeStr, "分钟前"): // 例:3分钟前
+		afterMinutesStr := strings.TrimSuffix(timeStr, "分钟前")
+		afterMinutes, _ := strconv.Atoi(afterMinutesStr)
+		timeNow := time.Now().Add(time.Minute * time.Duration(-afterMinutes))
+		publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), timeNow.Hour(), timeNow.Minute(), 0, 0, time.Local)
+
+	case strings.Contains(timeStr, "小时前"): // 例:3小时前
 		afterHoursStr := strings.TrimSuffix(timeStr, "小时前")
 		afterHours, _ := strconv.Atoi(afterHoursStr)
 		timeNow := time.Now().Add(time.Hour * time.Duration(-afterHours))
 		publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
-	} else if timeStr == "昨天" {
+
+	case strings.Contains(timeStr, "昨天"):
 		timeNow := time.Now()
 		publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
-	} else {
+
+	case strings.Count(timeStr, "-") == 2: // 今年日期, 例如 "12-31"
 		strs := strings.Split(timeStr, "-")
-		year := time.Now().Year()
-		mouth := int(time.Now().Month())
-		day := time.Now().Day()
-		if len(strs) == 3 { // 往年日期, 例如 "2022-12-31"
-			year, _ = strconv.Atoi(strs[0])
-			mouth, _ = strconv.Atoi(strs[1])
-			day, _ = strconv.Atoi(strs[2])
-		} else { // 今年日期, 例如 "12-31"
-			mouth, _ = strconv.Atoi(strs[0])
-			day, _ = strconv.Atoi(strs[1])
-		}
+		mouth, _ := strconv.Atoi(strs[1])
+		day, _ := strconv.Atoi(strs[2])
+		publishTime = time.Date(time.Now().Year(), time.Month(mouth), day, 0, 0, 0, 0, time.Local)
+
+	case strings.Count(timeStr, "-") == 3: // 往年日期, 例如 "2022-12-31"
+		strs := strings.Split(timeStr, "-")
+		year, _ := strconv.Atoi(strs[0])
+		mouth, _ := strconv.Atoi(strs[1])
+		day, _ := strconv.Atoi(strs[2])
 		publishTime = time.Date(year, time.Month(mouth), day, 0, 0, 0, 0, time.Local)
+
+	default: // something wrong
+		panic(fmt.Sprintf("timeStr: %s", timeStr))
 	}
 	return publishTime
 }
