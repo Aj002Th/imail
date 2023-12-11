@@ -12,6 +12,7 @@ var (
 	logFileManager *lumberjack.Logger
 
 	logFileName = "imail"
+	logFileExt  = ".log"
 	cron        = "0 0 * * *"
 )
 
@@ -19,7 +20,7 @@ var (
 func Init() {
 	// 日志文件管理
 	logFileManager = &lumberjack.Logger{
-		Filename:   "./data/logs/" + logFileName,
+		Filename:   "./data/logs/" + logFileName + logFileExt,
 		MaxSize:    500, // megabytes
 		MaxBackups: 10,
 		MaxAge:     30, // days
