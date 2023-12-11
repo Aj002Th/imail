@@ -124,13 +124,13 @@ func (c *Catcher) parseDate(timeStr string) time.Time {
 		timeNow := time.Now()
 		publishTime = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.Local)
 
-	case strings.Count(timeStr, "-") == 2: // 今年日期, 例如 "12-31"
+	case strings.Count(timeStr, "-") == 1: // 今年日期, 例如 "12-31"
 		strs := strings.Split(timeStr, "-")
-		mouth, _ := strconv.Atoi(strs[1])
-		day, _ := strconv.Atoi(strs[2])
+		mouth, _ := strconv.Atoi(strs[0])
+		day, _ := strconv.Atoi(strs[1])
 		publishTime = time.Date(time.Now().Year(), time.Month(mouth), day, 0, 0, 0, 0, time.Local)
 
-	case strings.Count(timeStr, "-") == 3: // 往年日期, 例如 "2022-12-31"
+	case strings.Count(timeStr, "-") == 2: // 往年日期, 例如 "2022-12-31"
 		strs := strings.Split(timeStr, "-")
 		year, _ := strconv.Atoi(strs[0])
 		mouth, _ := strconv.Atoi(strs[1])

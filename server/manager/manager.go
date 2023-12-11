@@ -64,8 +64,6 @@ func (m *Manager) Run() {
 	if config.IsImmediate() {
 		m.CatchAndSend()
 	}
-
-	select {}
 }
 
 func (m *Manager) CatchAndSend() {
