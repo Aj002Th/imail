@@ -1,30 +1,51 @@
 package logs
 
 import (
-	"fmt"
+	"github.com/Aj002Th/imail/common/crontab"
+	"github.com/natefinch/lumberjack"
 	"log/slog"
-	"os"
-	"time"
 )
 
-var Logger *slog.Logger
+var (
+	Logger *slog.Logger
+
+	logFileManager *lumberjack.Logger
+
+	logFileName = "imail"
+	cron        = "0 0 * * *"
+)
 
 // Init 日志初始化
 func Init() {
+	// 日志文件管理
+	logFileManager = &lumberjack.Logger{
+		Filename:   "./data/logs/" + logFileName,
+		MaxSize:    500, // megabytes
+		MaxBackups: 10,
+		MaxAge:     30, // days
+		LocalTime:  true,
+	}
+
+	// 定时进行日志切割
+	err := crontab.StartScheduledTasks(cron, func() {
+		if err := logFileManager.Rotate(); err != nil {
+			slog.Error(err.Error())
+		}
+	})
+	if err != nil {
+		slog.Error(err.Error())
+		panic(err)
+	}
+
+	// slog 日志初始化
 	opts := slog.HandlerOptions{
 		AddSource: true,
 	}
-
-	// todo: close file
-	logFilename := time.Now().Format("2006-01-02") + ".log"
-	file, err := os.OpenFile("./data/logs/"+logFilename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	//handler := slog.NewJSONHandler(os.Stdout, &opts)
-	handler := slog.NewJSONHandler(file, &opts)
+	handler := slog.NewJSONHandler(logFileManager, &opts)
 	Logger = slog.New(handler)
-
 	slog.SetDefault(Logger)
+}
+
+func Close() {
+	logFileManager.Close()
 }
